@@ -29,7 +29,7 @@ tf.flags.DEFINE_string("model_type", "rcnn", "Model type, one of {`cnn`, `rnn`, 
 tf.flags.DEFINE_string("word_embedding_type", "non-static", "One of `rand`, `static`, `non-static`, random init(rand) vs pretrained word2vec(static) vs pretrained word2vec + training(non-static)")
 # If include CNN
 tf.flags.DEFINE_string("filter_sizes", "2,3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 100, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
 # If include RNN
 tf.flags.DEFINE_string("rnn_cell", "gru", "Rnn cell type, lstm or gru or rnn(default: lstm)")
 tf.flags.DEFINE_integer("hidden_units", 100, "Number of hidden units (default: 50)")
@@ -51,10 +51,10 @@ tf.flags.DEFINE_float("margin", 0.0, "Margin for contrasive loss (default: 0.0)"
 
 # Training parameters
 tf.flags.DEFINE_string("model_dir", "../model", "Model directory (default: ../model)")
-tf.flags.DEFINE_integer("batch_size", 256, "Batch Size (default: 64)")
-tf.flags.DEFINE_float("lr", 1e-2, "Initial learning rate (default: 1e-3)")
+tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
+tf.flags.DEFINE_float("lr", 1e-3, "Initial learning rate (default: 1e-3)")
 tf.flags.DEFINE_float("weight_decay_rate", 0.5, "Exponential weight decay rate (default: 0.9) ")
-tf.flags.DEFINE_integer("num_epochs", 30, "Number of training epochs (default: 100)")
+tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 100)")
 tf.flags.DEFINE_integer("log_every_steps", 100, "Print log info after this many steps (default: 100)")
 tf.flags.DEFINE_integer("evaluate_every_steps", 100, "Evaluate model on dev set after this many steps (default: 100)")
 # tf.flags.DEFINE_integer("checkpoint_every_steps", 1000, "Save model after this many steps (default: 100)")
@@ -230,14 +230,16 @@ def train():
         last_improved_step = 0
         for batch in train_batches:
             x1_batch, x2_batch, y_batch = zip(*batch)
+            # print(y_batch)
             feed_dict = {
                 input_x1: x1_batch,
                 input_x2: x2_batch,
                 input_y: y_batch,
                 dropout_keep_prob: FLAGS.dropout_keep_prob
             }
-            _, step, loss, cm, acc, precision, recall, f1, summaries = sess.run(
-                [train_op, global_step, model.loss, model.cm, model.acc, model.precision, model.recall, model.f1, train_summary_op],  feed_dict)
+            _, step, loss, cm, acc, precision, recall, f1, summaries, y_pred = sess.run(
+                [train_op, global_step, model.loss, model.cm, model.acc, model.precision, model.recall, model.f1, train_summary_op, model.y_pred],  feed_dict)
+            # print("y_pred:", y_pred)
             time_str = datetime.datetime.now().isoformat()
             if step % FLAGS.log_every_steps == 0:
                 train_summary_writer.add_summary(summaries, step)
@@ -283,7 +285,7 @@ def train():
                 if f1 > F1_best:
                     F1_best = f1
                     last_improved_step = step
-                    if F1_best > 0.5:
+                    if F1_best > 0.3:
                         path = saver.save(sess, checkpoint_prefix, global_step=step)
                         print("Saved model with F1={} checkpoint to {}\n".format(F1_best, path))
                     improved_token = '*'

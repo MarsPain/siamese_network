@@ -134,6 +134,7 @@ class SiameseSimilarityNets(SiameseNets):
         else:
             raise ValueError("Invalid energy function name.")
         self.y_pred = tf.cast(tf.greater(self.sim, self._pred_threshold), dtype=tf.float32, name="y_pred")
+        # print("self.y_pred", self.y_pred)
 
         with tf.name_scope("loss"):
             if self._loss_func == 'contrasive':

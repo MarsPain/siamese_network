@@ -19,10 +19,12 @@ def main(input_file, output_file):
         with sess.as_default():
             # Load the saved meta graph and restore variables
             # saver = tf.train.Saver(tf.global_variables())
-            meta_file = os.path.abspath(os.path.join(FLAGS.model_dir, 'checkpoints/model-600.meta'))
+            meta_file = os.path.abspath(os.path.join(FLAGS.model_dir, 'checkpoints/model-900.meta'))
             new_saver = tf.train.import_meta_graph(meta_file)
             # new_saver = tf.train.Saver(tf.global_variables())
+            print(tf.train.latest_checkpoint(os.path.join(FLAGS.model_dir, 'checkpoints')))
             new_saver.restore(sess, tf.train.latest_checkpoint(os.path.join(FLAGS.model_dir, 'checkpoints')))
+            # new_saver.restore(sess, tf.train.latest_checkpoint("../model/checkpoints"))
             # graph = tf.get_default_graph()
             # Get the placeholders from the graph by name
             # input_x1 = graph.get_operation_by_name("input_x1").outputs[0]
@@ -40,13 +42,13 @@ def main(input_file, output_file):
             # Generate batches for one epoch
             dataset = Dataset(data_file=input_file, is_training=False)
             data = dataset.process_data(data_file=input_file, sequence_length=FLAGS.max_document_length)
-            batches = dataset.batch_iter(data, 1, 1, shuffle=False)
+            batches = dataset.batch_iter(data, 50, 1, shuffle=False)
             with open(output_file, 'w') as fo:
                 lineno = 1
                 for batch in batches:
                     x1_batch, x2_batch = zip(*batch)
-                    # print(type(x1_batch), x1_batch)
-                    y_pred_ = sess.run([y_pred], {input_x1: x1_batch, input_x2: x2_batch, dropout_keep_prob: 0.5})
+                    print(type(x1_batch), x1_batch, type(x2_batch), x2_batch)
+                    y_pred_ = sess.run([y_pred], {input_x1: x1_batch, input_x2: x2_batch, dropout_keep_prob: 1.0})
                     print(y_pred_)
                     for pred in y_pred_[0]:
                         fo.write('{}\t{}\n'.format(lineno, int(pred)))

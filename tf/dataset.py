@@ -224,7 +224,7 @@ class Dataset(object):
                 dataset.append([s1_pad[0], s2_pad[0]])
         print("Saving npy...")
         dataset = np.asarray(dataset)
-        np.save(self.npy_file, dataset)
+        # np.save(self.npy_file, dataset)
         # np.savez(save_file, x1=x1, x2=x2, y=y)  # save multiple arrays as zip file.
         # np.savetxt(save_file, np.concatenate([x1, x2, y], axis=1), fmt="%d")  # or use np.hstack()
         return dataset

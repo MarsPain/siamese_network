@@ -17,11 +17,11 @@ from siamese_net import SiameseSimilarityNets, SiameseClassificationNets
 
 # Data loading params
 tf.flags.DEFINE_string("data_file", "../data/atec_nlp_sim_train.csv", "Training data file path.")
-tf.flags.DEFINE_float("val_percentage", .1, "Percentage of the training data to use for validation. (default: 0.2)")
+tf.flags.DEFINE_float("val_percentage", 0.2, "Percentage of the training data to use for validation. (default: 0.2)")
 tf.flags.DEFINE_integer("random_seed", 123, "Random seed to split train and test. (default: None)")
-tf.flags.DEFINE_integer("max_document_length", 30, "Max document length of each train pair. (default: 15)")
+tf.flags.DEFINE_integer("max_document_length", 15, "Max document length of each train pair. (default: 15)")
 tf.flags.DEFINE_boolean("char_model", False, "Character based syntactic model. if false, word based semantic model. (default: True)")
-tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character/word embedding (default: 300)")
+tf.flags.DEFINE_integer("embedding_dim", 300, "Dimensionality of character/word embedding (default: 300)")
 
 # Model Hyperparameters
 tf.flags.DEFINE_string("model_class", "similarity", "Model class, one of {`similarity`, `classification`}")
@@ -53,8 +53,8 @@ tf.flags.DEFINE_float("margin", 0.0, "Margin for contrasive loss (default: 0.0)"
 tf.flags.DEFINE_string("model_dir", "../model", "Model directory (default: ../model)")
 tf.flags.DEFINE_integer("batch_size", 128, "Batch Size (default: 64)")
 tf.flags.DEFINE_float("lr", 1e-3, "Initial learning rate (default: 1e-3)")
-tf.flags.DEFINE_float("weight_decay_rate", 0.5, "Exponential weight decay rate (default: 0.9) ")
-tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 100)")
+tf.flags.DEFINE_float("weight_decay_rate", 0.9, "Exponential weight decay rate (default: 0.9) ")
+tf.flags.DEFINE_integer("num_epochs", 50, "Number of training epochs (default: 100)")
 tf.flags.DEFINE_integer("log_every_steps", 100, "Print log info after this many steps (default: 100)")
 tf.flags.DEFINE_integer("evaluate_every_steps", 100, "Evaluate model on dev set after this many steps (default: 100)")
 # tf.flags.DEFINE_integer("checkpoint_every_steps", 1000, "Save model after this many steps (default: 100)")
@@ -230,7 +230,7 @@ def train():
         last_improved_step = 0
         for batch in train_batches:
             x1_batch, x2_batch, y_batch = zip(*batch)
-            # print(y_batch)
+            # print(x1_batch, x2_batch, y_batch)
             feed_dict = {
                 input_x1: x1_batch,
                 input_x2: x2_batch,
